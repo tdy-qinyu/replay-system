@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/security
+			http://www.springframework.org/schema/security/spring-security.xsd ">
+
+	<http auto-config="true" use-expressions="false">
+
+		<intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/login.do" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<access-denied-handler error-page="/error" />
+
+		<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<!-- 允许匿名用户进入 -->
+		<remember-me />
+
+		<logout logout-success-url="/" />
+
+		<form-login login-page="/login" login-processing-url="/login.do" />
+
+	</http>
+
+	<!-- <authentication-manager>
+		<authentication-provider>
+			<user-service properties="classpath:config/admin.properties"></user-service>
+		</authentication-provider>
+	</authentication-manager> -->
+
+	<!-- 异常信息中文化 -->
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<beans:property name="basename"
+			value="classpath:org/springframework/security/messages_zh_CN" />
+	</beans:bean>
+
+<!-- 	<authentication-manager>
+		<authentication-provider ref="authenticationProvider" />
+	</authentication-manager>
+	<beans:bean id="authenticationProvider"
+		class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:property name="hideUserNotFoundExceptions"
+			value="false" />
+		<beans:property name="userDetailsService" ref="userDetailsServiceImpl" />
+		<beans:property name="passwordEncoder" ref="passwordEncoder" />
+		<beans:property name="saltSource" ref="saltSource" />
+	</beans:bean>
+	MD5加密盐
+	<beans:bean id="passwordEncoder"
+		class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+	<beans:bean id="saltSource"
+		class="org.springframework.security.authentication.dao.ReflectionSaltSource">
+		<beans:property name="userPropertyToUse" value="username" />
+	</beans:bean> -->
+	
+	<!-- druid数据库连接池 -->
+	<beans:bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close" init-method="init">
+		<beans:property name="driverClassName" value="com.mysql.jdbc.Driver"></beans:property>
+		<beans:property name="url" value="jdbc:mysql://localhost/usercentral?useUnicode=true&amp;characterEncoding=UTF-8"></beans:property>
+		<beans:property name="username" value="roor"></beans:property>
+		<beans:property name="password" value="yhan219"></beans:property>
+	</beans:bean>
+	
+	<authentication-manager>
+		<authentication-provider>
+			<jdbc-user-service
+			 data-source-ref="dataSource"
+			 users-by-username-query="select nickname,pwd from User where nickname=?"
+			 role-prefix="ROLE_"			 
+			 />
+		</authentication-provider>
+	</authentication-manager>
+</beans:beans>
